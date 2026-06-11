@@ -20,27 +20,57 @@ const save = async () => {
     alert('Sauvegardé')
   }
 }
-const uploadImage = async (event) => {
-  const file = event.target.files[0]
+const getFileNameFromUrl = (url) => {
+  if (!url) return null
 
-  if (!file) return
+  const parts = url.split('/images/')
+  return parts[1] || null
+}
+const deleteOldImage = async (oldUrl) => {
+  const fileName = getFileNameFromUrl(oldUrl)
 
-  const fileName = Date.now() + '-' + file.name
+  if (!fileName) return
 
-  const { error } = await supabase.storage.from('images').upload(fileName, file)
+  const { error } = await supabase.storage.from('images').remove([fileName])
 
   if (error) {
-    console.error(error)
+    console.error('DELETE ERROR:', error)
+  } else {
+    console.log('Image supprimée:', fileName)
+  }
+}
+// ----*****-----
+const uploadImage = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  // 🔥 1. supprimer ancienne image si elle existe
+  if (contenu.value.image_url) {
+    await deleteOldImage(contenu.value.image_url)
+  }
+
+  // 🔥 2. uploader nouvelle image
+  const fileName = Date.now() + '-' + file.name
+
+  const { error: uploadError } = await supabase.storage.from('images').upload(fileName, file)
+
+  if (uploadError) {
+    console.error(uploadError)
     alert('Erreur upload')
     return
   }
 
+  // 🔥 3. récupérer URL publique
   const { data } = supabase.storage.from('images').getPublicUrl(fileName)
 
+  // 🔥 4. enregistrer dans l'objet Vue
   contenu.value.image_url = data.publicUrl
 
-  alert('Image envoyée')
+  alert('Image remplacée avec succès')
+  console.log('FICHIER A SUPPRIMER =', getFileNameFromUrl(contenu.value.image_url))
 }
+
+// ------****--------
 const contenu = ref({
   id: null,
   title: '',
@@ -49,7 +79,7 @@ const contenu = ref({
 })
 
 onMounted(async () => {
-  const { data, error } = await supabase.from('site_content').select('*').eq('id', 3).single()
+  const { data, error } = await supabase.from('site_content').select('*').eq('id', 2).single()
 
   console.log(data)
 
