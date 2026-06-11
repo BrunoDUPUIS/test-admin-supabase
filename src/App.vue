@@ -1,46 +1,99 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { supabase } from './supabase'
+const modeAdmin = ref(false)
 
-const contenu = ref({ id: null, title: '', content: '' })
+const save = async () => {
+  const { error } = await supabase
+    .from('site_content')
+    .update({
+      title: contenu.value.title,
+      content: contenu.value.content,
+      image_url: contenu.value.image_url,
+    })
+    .eq('id', contenu.value.id)
+
+  if (error) {
+    console.error(error)
+    alert('Erreur')
+  } else {
+    alert('Sauvegardé')
+  }
+}
+const uploadImage = async (event) => {
+  const file = event.target.files[0]
+
+  if (!file) return
+
+  const fileName = Date.now() + '-' + file.name
+
+  const { error } = await supabase.storage.from('images').upload(fileName, file)
+
+  if (error) {
+    console.error(error)
+    alert('Erreur upload')
+    return
+  }
+
+  const { data } = supabase.storage.from('images').getPublicUrl(fileName)
+
+  contenu.value.image_url = data.publicUrl
+
+  alert('Image envoyée')
+}
+const contenu = ref({
+  id: null,
+  title: '',
+  content: '',
+  image_url: '',
+})
 
 onMounted(async () => {
-  const { data, error } = await supabase.from('site_content').select('*')
+  const { data, error } = await supabase.from('site_content').select('*').eq('id', 3).single()
 
-  console.log('DATA =', data)
+  console.log(data)
 
-  contenu.value = data?.[1] ?? {
-    id: null,
-    title: '',
-    content: '',
-  }
+  contenu.value = data
 })
 </script>
 
 <template>
-  <h1>Test Admin avec Supabase</h1>
+  <pre>{{ contenu }}</pre>
+  <button @click="modeAdmin = !modeAdmin">
+    {{ modeAdmin ? 'Voir le site' : 'Admin' }}
+  </button>
 
-  <div>
-    <p>
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Nulla eligendi inventore, sunt nam
-      perspiciatis dolores cupiditate saepe ut mollitia officia laborum facere molestias quae in.
-      Neque distinctio expedita veritatis voluptas.
-    </p>
-  </div>
-  <div>
+  <div v-if="!modeAdmin">
     <h1>{{ contenu.title }}</h1>
+
     <p>{{ contenu.content }}</p>
+
+    <img v-if="contenu.image_url" :src="contenu.image_url" alt="logo artisan" class="image" />
   </div>
 
-  <div>
-    <img src="../public/images/1.jpg" alt="logo artisan" class="image" />
+  <div v-else>
+    <h2>Administration</h2>
+
+    <input v-model="contenu.title" placeholder="Titre" />
+
+    <br /><br />
+
+    <textarea v-model="contenu.content" rows="5" cols="40" />
+
+    <br /><br />
+    <input type="file" accept="image/*" @change="uploadImage" />
+
+    <br /><br />
+    <button @click="save">Sauvegarder</button>
   </div>
 </template>
 
 <style scoped>
 .image {
-  margin: 0 auto;
-  width: 500px;
+  display: block;
+  margin: 20px auto;
+  max-width: 100%;
+  height: auto;
 }
 h1 {
   color: blueviolet;
