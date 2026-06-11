@@ -9,7 +9,7 @@ onMounted(async () => {
 
   console.log('DATA =', data)
 
-  contenu.value = data?.[0] ?? {
+  contenu.value = data?.[1] ?? {
     id: null,
     title: '',
     content: '',
