@@ -78,10 +78,7 @@ onMounted(async () => {
 
   if (!data.user) {
     router.push('/login')
-    return
   }
-
-  loadContent()
 })
 
 const loadContent = async () => {
