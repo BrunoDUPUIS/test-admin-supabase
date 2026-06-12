@@ -2,7 +2,17 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../supabase'
+import { onMounted } from 'vue'
 
+onMounted(async () => {
+  const { data, error } = await supabase.auth.getSessionFromUrl()
+
+  if (data.session) {
+    router.push('/admin')
+  }
+})
+
+supabase.auth.getSessionFromUrl()
 const router = useRouter()
 
 const email = ref('')
