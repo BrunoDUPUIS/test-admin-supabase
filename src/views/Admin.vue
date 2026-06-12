@@ -74,12 +74,10 @@ const contenu = ref({
 })
 
 onMounted(async () => {
-  const { data, error } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser()
 
-  const user = data?.user
-
-  if (error || !user) {
-    router.replace('/login')
+  if (!data.user) {
+    router.push('/login')
     return
   }
 
