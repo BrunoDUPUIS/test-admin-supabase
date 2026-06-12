@@ -1,5 +1,6 @@
-import { createRouter, createWebHistory } from 'vue-router'
 import { supabase } from '../supabase'
+
+import { createRouter, createWebHistory } from 'vue-router'
 
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
@@ -15,7 +16,6 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
-
 router.beforeEach(async (to) => {
   if (!to.meta.requiresAuth) return true
 
@@ -24,13 +24,8 @@ router.beforeEach(async (to) => {
   const session = data.session
 
   if (!session) {
-    return {
-      path: '/login',
-      replace: true,
-    }
+    return '/login'
   }
 
   return true
 })
-
-export default router
