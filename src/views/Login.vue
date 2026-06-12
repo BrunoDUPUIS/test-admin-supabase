@@ -18,12 +18,14 @@ const router = useRouter()
 const email = ref('')
 const password = ref('')
 const errorMessage = ref('')
-
+// -----**** LOGIN ****------
 const login = async () => {
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: email.value,
     password: password.value,
   })
+
+  console.log(data, error)
 
   if (error) {
     errorMessage.value = error.message
@@ -32,6 +34,7 @@ const login = async () => {
 
   router.push('/admin')
 }
+// -----**** LOGIN ****------
 </script>
 
 <template>
