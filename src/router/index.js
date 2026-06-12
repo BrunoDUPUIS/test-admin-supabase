@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { supabase } from '../supabase'
 
 import Home from '../views/Home.vue'
 import Login from '../views/Login.vue'
@@ -15,16 +14,16 @@ const router = createRouter({
   history: createWebHistory(),
   routes,
 })
-router.beforeEach(async (to, from, next) => {
-  const { data } = await supabase.auth.getUser()
+router.beforeEach(async (to) => {
+  if (!to.meta.requiresAuth) return true
 
-  const user = data.user
+  const { data } = await supabase.auth.getSession()
 
-  if (to.meta.requiresAuth && !user) {
-    next('/login')
-  } else {
-    next()
+  const session = data.session
+
+  if (!session) {
+    return '/login'
   }
-})
 
-export default router
+  return true
+})

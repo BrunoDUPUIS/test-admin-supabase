@@ -74,14 +74,11 @@ const contenu = ref({
 })
 
 onMounted(async () => {
-  const { data } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getSession()
 
-  if (!data.user) {
+  if (!data.session) {
     router.push('/login')
-    return
   }
-
-  loadContent()
 })
 
 const loadContent = async () => {
