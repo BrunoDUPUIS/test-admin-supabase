@@ -28,6 +28,7 @@ const login = async () => {
   <div class="login-page">
     <div class="login-card">
       <img src="../logo.jpg" alt="Logo" class="logo" />
+      <h1>{{ contenu }}</h1>
       <h1>Espace Administration</h1>
 
       <p class="subtitle">Connectez-vous pour gérer votre site.</p>

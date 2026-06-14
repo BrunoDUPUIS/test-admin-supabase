@@ -3,6 +3,8 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '../supabase'
 
+const currentSection = ref('Accueil')
+
 const removeImage = async () => {
   if (!contenu.value.image_url) return
 
@@ -74,18 +76,32 @@ const contenu = ref({
 })
 
 onMounted(async () => {
-  const { data } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getSession()
 
-  if (!data.user) {
-    router.push('/login')
+  if (!data.session) {
+    router.replace('/login')
     return
   }
 
-  loadContent()
+  loadContent('Accueil')
 })
 
-const loadContent = async () => {
-  const { data } = await supabase.from('site_content').select('*').eq('section', 'Accueil').single()
+const changeSection = (section) => {
+  currentSection.value = section
+  loadContent(section)
+}
+
+const loadContent = async (section) => {
+  const { data, error } = await supabase
+    .from('site_content')
+    .select('*')
+    .eq('section', section)
+    .single()
+
+  if (error) {
+    console.error(error)
+    return
+  }
 
   contenu.value = data
 }
@@ -119,15 +135,23 @@ const logout = async () => {
       <h2>Administration</h2>
 
       <ul>
-        <li>🏠 Accueil</li>
-        <li>🛠 Services</li>
-        <li>📞 Contact</li>
+        <li :class="{ active: currentSection === 'Accueil' }" @click="changeSection('Accueil')">
+          🏠 Accueil
+        </li>
+
+        <li :class="{ active: currentSection === 'Services' }" @click="changeSection('Services')">
+          🛠 Services
+        </li>
+
+        <li :class="{ active: currentSection === 'Contact' }" @click="changeSection('Contact')">
+          📞 Contact
+        </li>
       </ul>
     </aside>
 
     <main class="content">
       <div class="card">
-        <h1>Modifier la page Accueil</h1>
+        <h1>Modifier la page {{ currentSection }}</h1>
 
         <label>Titre</label>
         <input type="text" v-model="contenu.title" />
@@ -153,6 +177,10 @@ const logout = async () => {
 </template>
 
 <style scoped>
+.sidebar li.active {
+  background: #2563eb;
+}
+
 .admin-layout {
   display: flex;
   min-height: 100vh;
