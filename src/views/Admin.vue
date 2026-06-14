@@ -114,34 +114,173 @@ const logout = async () => {
 </script>
 
 <template>
-  <h1>Administration du site</h1>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <h2>Administration</h2>
 
-  <input v-model="contenu.title" placeholder="Titre" />
+      <ul>
+        <li>🏠 Accueil</li>
+        <li>🛠 Services</li>
+        <li>📞 Contact</li>
+      </ul>
+    </aside>
 
-  <br /><br />
+    <main class="content">
+      <div class="card">
+        <h1>Modifier la page Accueil</h1>
 
-  <textarea v-model="contenu.content" rows="5" cols="50" />
+        <label>Titre</label>
+        <input type="text" v-model="contenu.title" />
 
-  <input type="file" accept="image/*" @change="uploadImage" />
+        <label>Texte</label>
+        <textarea v-model="contenu.content"></textarea>
 
-  <br /><br />
+        <label>Image</label>
+        <input type="file" accept="image/*" @change="uploadImage" />
 
-  <div v-if="contenu.image_url">
-    <img :src="contenu.image_url" class="preview" alt="Aperçu" />
+        <img v-if="contenu.image_url" :src="contenu.image_url" class="preview" />
+
+        <div class="actions">
+          <button class="btn btn-save" @click="save">Sauvegarder</button>
+
+          <button class="btn btn-delete" @click="removeImage">Supprimer l'image</button>
+
+          <button class="btn btn-logout" @click="logout">Déconnexion</button>
+        </div>
+      </div>
+    </main>
   </div>
-
-  <button v-if="contenu.image_url" @click="removeImage">Supprimer l'image</button>
-
-  <button @click="save">Sauvegarder</button>
-
-  <button @click="logout">Déconnexion</button>
 </template>
 
-<style>
+<style scoped>
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6f9;
+}
+
+/* Sidebar */
+
+.sidebar {
+  width: 250px;
+  background: #1e293b;
+  color: white;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.sidebar li:hover {
+  background: #334155;
+}
+
+/* Contenu */
+
+.content {
+  flex: 1;
+  padding: 40px;
+}
+
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Formulaire */
+
+label {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input[type='text'],
+textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+textarea {
+  min-height: 180px;
+  resize: vertical;
+}
+
+/* Image */
+
 .preview {
   display: block;
-  max-width: 400px;
   margin: 20px auto;
+  max-width: 400px;
+  border-radius: 10px;
+}
+
+/* Boutons */
+
+.actions {
+  margin-top: 25px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn {
+  border: none;
+  padding: 12px 20px;
   border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.btn-save {
+  background: #16a34a;
+  color: white;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+}
+
+.btn-logout {
+  background: #475569;
+  color: white;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .content {
+    padding: 20px;
+  }
 }
 </style>
